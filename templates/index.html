@@ -3,133 +3,119 @@
 <head>
     <title>Pooji's Expense Tracker 💜</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         body {
-            font-family: Arial;
-            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            background: linear-gradient(135deg, #fbc2eb, #a6c1ee, #fcd5ce);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
         }
 
-        h2 {
-            text-align: center;
-            color: #6a11cb;
+        .fade-in {
+            animation: fadeIn 1.2s ease-in;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
         }
 
-        input, button {
-            padding: 10px;
-            border-radius: 8px;
+        .hover-soft:hover {
+            transform: translateY(-3px);
+            transition: 0.3s ease;
         }
 
-        button {
-            background: #6a11cb;
-            color: white;
-            border: none;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        th {
-            background: #6a11cb;
-            color: white;
-        }
-
-        td, th {
-            padding: 10px;
-            text-align: center;
-        }
-
-        .delete-btn {
-            background: red;
-            color: white;
-            border-radius: 6px;
-            padding: 5px;
-        }
-
-        canvas {
-            margin-top: 30px;
+        .glass {
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(15px);
         }
     </style>
 </head>
 
-<body>
+<body class="text-gray-800 min-h-screen flex items-center justify-center">
 
-<div class="container">
+<div class="w-full max-w-5xl p-8 glass rounded-3xl shadow-2xl fade-in">
 
-    <h2>💜 Pooji's Expense Tracker 💜</h2>
+    <!-- TITLE -->
+    <h1 class="text-4xl font-semibold text-center mb-8 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-transparent bg-clip-text">
+        💜 Pooji's Expense Tracker ✨
+    </h1>
 
     <!-- FORM -->
-    <form method="POST">
-        <input type="number" name="amount" placeholder="Amount" required>
-        <input type="text" name="category" placeholder="Category" required>
-        <input type="date" name="date" required>
-        <button>Add Expense</button>
+    <form method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+
+        <input name="amount" type="number" placeholder="Amount 💸"
+            class="p-3 rounded-xl bg-white/80 focus:ring-2 focus:ring-purple-300 hover-soft">
+
+        <input name="category" type="text" placeholder="Category 🛍️"
+            class="p-3 rounded-xl bg-white/80 focus:ring-2 focus:ring-pink-300 hover-soft">
+
+        <input name="date" type="date"
+            class="p-3 rounded-xl bg-white/80 focus:ring-2 focus:ring-blue-300 hover-soft">
+
+        <button class="bg-gradient-to-r from-pink-400 to-purple-500 text-white rounded-xl shadow-lg hover:opacity-90 transition">
+            Add ✨
+        </button>
     </form>
 
-    <!-- TABLE -->
-    <table border="1">
-        <tr>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Date</th>
-            <th>Delete</th>
-        </tr>
-
-        {% for row in data %}
-        <tr>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
-            <td>
-                <a href="/delete/{{ row[0] }}">
-                    <button class="delete-btn">❌</button>
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-
     <!-- TOTALS -->
-    <h3>Monthly Total: {{ monthly_total }}</h3>
-    <h3>Yearly Total: {{ yearly_total }}</h3>
+    <div class="grid grid-cols-2 gap-6 mb-8 text-center">
 
-    <!-- GRAPH -->
-    <canvas id="chart"></canvas>
+        <div class="bg-white/60 p-4 rounded-2xl shadow hover-soft">
+            <h2 class="text-sm text-gray-600">📊 Monthly</h2>
+            <p class="text-2xl font-semibold text-pink-500">₹ {{ monthly_total }}</p>
+        </div>
+
+        <div class="bg-white/60 p-4 rounded-2xl shadow hover-soft">
+            <h2 class="text-sm text-gray-600">📅 Yearly</h2>
+            <p class="text-2xl font-semibold text-purple-500">₹ {{ yearly_total }}</p>
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="overflow-auto max-h-64">
+        <table class="w-full text-center bg-white/40 rounded-xl">
+
+            <tr class="bg-white/60 text-gray-700">
+                <th>ID</th>
+                <th>Amount 💸</th>
+                <th>Category 🏷️</th>
+                <th>Date 📅</th>
+                <th>Action</th>
+            </tr>
+
+            {% for row in data %}
+            <tr class="hover:bg-white/50 transition">
+                <td>{{ row[0] }}</td>
+                <td class="text-pink-500 font-medium">₹ {{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>
+                    <a href="/delete/{{ row[0] }}"
+                       class="text-red-400 hover:text-red-600 transition">
+                       🗑️ Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+
+    <!-- FOOTER -->
+    <p class="text-center mt-8 text-sm text-gray-500">
+        Made with ❤️ for Pooji
+    </p>
 
 </div>
-
-<script>
-    const ctx = document.getElementById('chart');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {{ dates | tojson }},
-            datasets: [{
-                label: 'Expenses',
-                data: {{ amounts | tojson }},
-                borderWidth: 2
-            }]
-        }
-    });
-</script>
 
 </body>
 </html>
