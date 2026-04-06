@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
@@ -19,11 +20,11 @@ def init_db():
     conn.commit()
     conn.close()
 
-# ✅ CALL AFTER FUNCTION
-init_db()
 # Home page
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    init_db()   # ✅ IMPORTANT FIX
+
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
 
@@ -81,10 +82,8 @@ def delete(id):
     conn.commit()
     conn.close()
     return redirect('/')
-# ✅ ADD THIS AT THE END
-import os
 
+# Run app (Render compatible)
 if __name__ == "__main__":
-    init_db()  # create database
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
