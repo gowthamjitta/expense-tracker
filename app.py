@@ -23,27 +23,33 @@ def init_db():
 # Home page
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    init_db()   # ✅ IMPORTANT FIX
+    init_db()
 
     conn = sqlite3.connect('expenses.db')
     c = conn.cursor()
 
     # Add expense
     if request.method == 'POST':
-        amount = request.form['amount']
-        category = request.form['category']
-        date = request.form['date']
+        amount = float(request.form.get('amount', 0))
+        category = request.form.get('category', '')
+        date = request.form.get('date', '')
 
-        c.execute(
-            "INSERT INTO expenses (amount, category, date) VALUES (?, ?, ?)",
-            (amount, category, date)
-        )
-        conn.commit()
+        if amount > 0 and category and date:
+            c.execute(
+                "INSERT INTO expenses (amount, category, date) VALUES (?, ?, ?)",
+                (amount, category, date)
+            )
+            conn.commit()
         return redirect('/')
 
-    # Get all expenses
+    # Fetch all data
     c.execute("SELECT * FROM expenses")
     data = c.fetchall()
+
+    # Today's total
+    today = datetime.now().strftime("%Y-%m-%d")
+    c.execute("SELECT SUM(amount) FROM expenses WHERE date = ?", (today,))
+    today_total = c.fetchone()[0] or 0
 
     # Monthly total
     month = datetime.now().strftime("%Y-%m")
@@ -67,13 +73,14 @@ def index():
     return render_template(
         "index.html",
         data=data,
+        today_total=today_total,
         monthly_total=monthly_total,
         yearly_total=yearly_total,
         dates=dates,
         amounts=amounts
     )
 
-# Delete expense
+# Delete
 @app.route('/delete/<int:id>')
 def delete(id):
     conn = sqlite3.connect('expenses.db')
@@ -83,10 +90,7 @@ def delete(id):
     conn.close()
     return redirect('/')
 
-# Run app (Render compatible)
-import os
-
+# Run
 if __name__ == "__main__":
-    init_db()
-    port = int(os.environ.get("PORT", 10000))  # IMPORTANT
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
