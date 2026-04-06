@@ -65,8 +65,8 @@ def index():
     c.execute("SELECT date, amount FROM expenses")
     graph_data = c.fetchall()
 
-    dates = [row[0] for row in graph_data]
-    amounts = [row[1] for row in graph_data]
+    dates = [str(row[0]) for row in graph_data]
+    amounts = [float(row[1]) for row in graph_data]
 
     conn.close()
 
